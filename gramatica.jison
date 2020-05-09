@@ -27,10 +27,13 @@
 "case"				return 'CASE';
 "default"			return 'DEFAULT';
 "break"				return 'BREAK';
+"continue"          return 'CONTINUE';
+"return"            return 'RETURN';
 "void"              return 'VOID';
 "true"              return 'BOOLT';
 "false"             return 'BOOLF';
-
+"System.out.print"  return 'SOUT';
+"System.out.println" return 'SOUTLN';
 ":"					return 'DOSPTS';
 ";"					return 'PTCOMA';
 "{"					return 'LLAVIZQ';
@@ -77,10 +80,9 @@
 
 
 %{
-	const TIPO_OPERACION	= require('./instrucciones').TIPO_OPERACION;
-	const TIPO_VALOR 		= require('./instrucciones').TIPO_VALOR;
-	const TIPO_DATO			= require('./tabla_simbolos').TIPO_DATO; //para jalar el tipo de dato
-	const API	= require('./instrucciones').instruccionesAPI;
+	const TIPO_OPERACION	= require('./ast').TIPO_OPERACION;
+	const TIPO_VALOR 		= require('./ast').TIPO_VALOR;
+	const API	= require('./ast').API;
 %}
 
 
@@ -102,26 +104,27 @@ ini
 ;
 
 s
-    : imports clases { $1.push($2); $$ = $1; }
+    : imports clases { $$ = $2; }
+;
 
 imports 
-    : imports import { $1.push($2) , $$ = $1; }
+    : imports import { $1.push($2) ; $$ = $1; }
     | import { $$ = $1 ;} 
-    |
 ;
 
 import
-    : IMPORT IDENTIFICADOR { $$ = instruccionesAPI.nuevoImport($2) ; }
-
+    : RIMPORT IDENTIFICADOR PTCOMA { $$ = API.astImport($2) ; }
+;
 
 clases
-    : clases clase { $1.push($2) , $$ = $1; }
+    : clases clase { $1.push($2) ; $$ = $1; }
     | clase { $$ = $1; }
 ;
 
 clase 
-    : CLASS IDENTIFICADOR LLAVIZQ instrucciones LLAVDER { $$ = instruccionesAPI.nuevaClase($2 , [$4]) ; }
+    : RCLASS IDENTIFICADOR LLAVIZQ instrucciones_clase LLAVDER { $$ = API.astClase($2 , $4) ; }
 ;
+
 
 instrucciones_clase
     :instrucciones_clase instruccion_clase { $1.push($2);  $$ = $1; }
@@ -131,49 +134,51 @@ instrucciones_clase
 instruccion_clase
     : RINT     identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.ENTERO , [$2]); }
     | RINT     identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.ENTERO , $2 , $4 ); }
-    | RINT     IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones LLAVDER { $$ = API.astFuncion(TIPO_DATO.ENTERO , $2 , $4, $7); }
+    | RINT     IDENTIFICADOR PARIZQ  PARDER LLAVIZQ instrucciones_int LLAVDER { $$ = API.astFuncion(TIPO_VALOR.ENTERO , $2 , "sin_parametro" , $6); }
+    | RINT     IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones_int LLAVDER { $$ = API.astFuncion(TIPO_VALOR.ENTERO , $2 , $4, $7); }
     | RSTRING  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CADENA , $2); }
     | RSTRING  identificador IGUAL  expresion_cadena PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.CADENA , $2 , $4 ); }
-    | RSTRING  IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones LLAVDER { $$ = API.astFuncion(TIPO_VALOR.CADENA , $2 , $4, $7);}
+    | RSTRING  IDENTIFICADOR PARIZQ  PARDER LLAVIZQ instrucciones_cadena LLAVDER { $$ = API.astFuncion(TIPO_VALOR.CADENA , $2 , "sin_parametro" , $6);}
+    | RSTRING  IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones_cadena LLAVDER { $$ = API.astFuncion(TIPO_VALOR.CADENA , $2 , $4, $7);}
     | RBOOLEAN identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.BOOLEANO , $2); }
     | RBOOLEAN identificador IGUAL  expresion_logica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.BOOLEANO , $2 , $4 ); }
-    | RBOOLEAN IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones LLAVDER { $$ = API.astFuncion(TIPO_VALOR.BOOLEANO , $2 , $4, $7); } 
+    | RBOOLEAN IDENTIFICADOR PARIZQ  PARDER LLAVIZQ instrucciones_boolean LLAVDER { $$ = API.astFuncion(TIPO_VALOR.BOOLEANO , $2 , "sin_parametro" , $6); } 
+    | RBOOLEAN IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones_boolean LLAVDER { $$ = API.astFuncion(TIPO_VALOR.BOOLEANO , $2 , $4, $7); } 
     | RDOUBLE  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.DOUBLE , $2); }
     | RDOUBLE  identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.DOUBLE , $2 , $4 ); }
-    | RDOUBLE  IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones LLAVDER { $$ = API.astFuncion(TIPO_VALOR.DOUBLE , $2 , $4, $7); }
+    | RDOUBLE  IDENTIFICADOR PARIZQ  PARDER LLAVIZQ instrucciones_int LLAVDER { $$ = API.astFuncion(TIPO_VALOR.DOUBLE , $2 , "sin_parametro" , $6); }
+    | RDOUBLE  IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones_int LLAVDER { $$ = API.astFuncion(TIPO_VALOR.DOUBLE , $2 , $4, $7); }
     | RCHAR    identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CARACTER , $2); }
     | RCHAR    identificador IGUAL  CHAR PTCOMA                                           { $$ = API.astDeclaracion( TIPO_VALOR.CARACTER , $2 , $4 ); }
-    | RCHAR    IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones LLAVDER { $$ = API.astFuncion(TIPO_VALOR.CARACTER , $2 , $4, $7); }
+    | RCHAR    IDENTIFICADOR PARIZQ  PARDER LLAVIZQ instrucciones_cadena LLAVDER { $$ = API.astFuncion(TIPO_VALOR.CARACTER , $2 , "sin_parametro" , $6); }
+    | RCHAR    IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones_cadena LLAVDER { $$ = API.astFuncion(TIPO_VALOR.CARACTER , $2 , $4, $7); }
     | IDENTIFICADOR IGUAL valor_decla PTCOMA		                                      { $$ = API.astAsignacion($1, $3); } 
+    | VOID IDENTIFICADOR PARIZQ  PARDER LLAVIZQ instrucciones LLAVDER     { $$ = API.astMetodo("no retorna" , $2 , "sin parametros" , $6); }        
+    | VOID IDENTIFICADOR PARIZQ parametros PARDER LLAVIZQ instrucciones LLAVDER     { $$ = API.astMetodo("no retorna" , $2 , $4 , $7); }
+    | error { console.log("error"); }
+
 ;
 
 parametros
-    :parametro lista_param      { $1.push($2); $$ = $1; }
-    |
+    :parametros COMA parametro      { $1.push($3); $$ = $1; }
+    |parametro                  { $$ = API.astListaP($1); }
 ;
 
 parametro
-    :RINT IDENTIFICADOR         { $$ = API.astParametro( TIPO_DATO.ENTERO , $2); }
-    |RSTRING IDENTIFICADOR      { $$ = API.astParametro( TIPO_DATO.CADENA , $2); }
-    |RBOOLEAN IDENTIFICADOR     { $$ = API.astParametro( TIPO_DATO.BOOLEANO , $2); }
-    |RDOUBLE IDENTIFICADOR      { $$ = API.astParametro( TIPO_DATO.DOUBLE , $2); }
-    |RCHAR IDENTIFICADOR        { $$ = API.astParametro( TIPO_DATO.CARACTER  , $2); }
-;
-
-lista_param
-    : lista_param COMA parametro { $1.push($3); $$ = $1; }
-    | COMA parametro             { $$ =  $2;  }
-    |
+    :RINT IDENTIFICADOR         { $$ = API.astParametro( TIPO_VALOR.ENTERO , $2); }
+    |RSTRING IDENTIFICADOR      { $$ = API.astParametro( TIPO_VALOR.CADENA , $2); }
+    |RBOOLEAN IDENTIFICADOR     { $$ = API.astParametro( TIPO_VALOR.BOOLEANO , $2); }
+    |RDOUBLE IDENTIFICADOR      { $$ = API.astParametro( TIPO_VALOR.DOUBLE , $2); }
+    |RCHAR IDENTIFICADOR        { $$ = API.astParametro( TIPO_VALOR.CARACTER  , $2); }
 ;
 
 identificador
-    :IDENTIFICADOR lista_identificadores       { $1 = API.astListaIden($1) ; $1.push($2) ; $$ = $1 ;}
+    : identificador COMA id           { $1.push($3); $$ = $1; }
+    | id                              { $$ = API.astListaI($1); }
 ;
 
-lista_identificadores
-    : lista_identificadores COMA IDENTIFICADOR { $1.push(API.astListaIden($2)); $$ = $1; }
-    | COMA IDENTIFICADOR                       { $$ = API.astListaIden($2); }
-    |
+id 
+    : IDENTIFICADOR { $$ = API.astIden($1) ;}
 ;
 
 instrucciones
@@ -192,46 +197,216 @@ instruccion
     | RDOUBLE  identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.DOUBLE , $2 , $4 ); }
     | RCHAR    identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CARACTER , $2); }
     | RCHAR    identificador IGUAL  CHAR PTCOMA                                           { $$ = API.astDeclaracion( TIPO_VALOR.CARACTER , $2 , $4 ); }
-	| WHILE PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER { $$ = API.astWhile($3, $6); }	
-    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones LLAVDER
+	| WHILE PARIZQ expresion_logica PARDER LLAVIZQ instrucciones_break LLAVDER { $$ = API.astWhile($3, $6); }	
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
 														{ $$ = API.astFor($3,$5,$7,$9,$14); }
-	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones LLAVDER
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
 														{ $$ = API.astFor($4,$6,$8,$10,$15); }
-    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones LLAVDER
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
 														{ $$ = API.astForD($3,$5,$7,$9,$14); }
-	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones LLAVDER
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
 														{ $$ = API.astForD($4,$6,$8,$10,$15); }
-
-    | IDENTIFICADOR IGUAL valor_decla PTCOMA		                                  { $$ = API.astAsignacion($1, $3); } 
-	| if  { $$ = $1; )}
-	| if else_if { $1.push($2); $$ = $1; )}
-	| if else_if else { $1.push($2); $1.push($3); $$ = $1; )}                                                        
+	| error { console.error('Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | IDENTIFICADOR IGUAL expresion_cadena PTCOMA		                                  { $$ = API.astAsignacion($1, $3); } 
+	| if  { $$ = API.astRif($1); }
+	| if else_if {  $$ = API.astElseifC($1 , $2); }
+    | if else {  $$ = API.astElseC($1 , $2); }
+	| if else_if else { $$ = API.astIfCompleto($1, $2 , $3); }                                                        
 	| SWITCH PARIZQ expresion_numerica PARDER LLAVIZQ casos LLAVDER
 		{ $$ = API.astSwitch($3,$6);}
-    | DO LLAVIZQ instrucciones LLAVDER WHILE PARIZQ expresion_logica PARDER PTCOMA { $$ = API.astDoWhile( $7, $3); }
-    | 
-	| error { console.error('Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | DO LLAVIZQ instrucciones_break LLAVDER WHILE PARIZQ expresion_logica PARDER PTCOMA { $$ = API.astDoWhile( $7, $3); } 
+    | SOUT PARIZQ expresion_cadena PARDER PTCOMA            { $$ = API.astSout($3); }
+    | SOUTLN PARIZQ expresion_cadena PARDER PTCOMA          { $$ = API.astSout($3); }
+    | llamada_metodo   PTCOMA                                 { $$ = $1; }
+
 ;
 
-valor_decla
-    :expresion_cadena { $$ = $1 ;}
-    |expresion_logica { $$ = $1 ;}
-    |CHAR { $$ = $1 ;}        
+
+instrucciones_break
+	: instrucciones_break instruccionb 	{ $1.push($2); $$ = $1; }
+	| instruccionb					    { $$ = [$1]; }
+;
+
+instruccionb
+    : RINT     identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.ENTERO , [$2]); }
+    | RINT     identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.ENTERO , $2 , $4 ); }
+    | RSTRING  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CADENA , $2); }
+    | RSTRING  identificador IGUAL  expresion_cadena PTCOMA                               { $$ = API.astDeclaracion( TIPO_VALOR.CADENA , $2 , $4 ); }
+    | RBOOLEAN identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.BOOLEANO , $2); }
+    | RBOOLEAN identificador IGUAL  expresion_logica PTCOMA                               { $$ = API.astDeclaracion( TIPO_VALOR.BOOLEANO , $2 , $4 ); }
+    | RDOUBLE  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.DOUBLE , $2); }
+    | RDOUBLE  identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.DOUBLE , $2 , $4 ); }
+    | RCHAR    identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CARACTER , $2); }
+    | RCHAR    identificador IGUAL  CHAR PTCOMA                                           { $$ = API.astDeclaracion( TIPO_VALOR.CARACTER , $2 , $4 ); }
+	| WHILE PARIZQ expresion_logica PARDER LLAVIZQ instrucciones_break LLAVDER { $$ = API.astWhile($3, $6); }	
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astFor($3,$5,$7,$9,$14); }
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astFor($4,$6,$8,$10,$15); }
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astForD($3,$5,$7,$9,$14); }
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astForD($4,$6,$8,$10,$15); }
+	| error { console.error('Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | IDENTIFICADOR IGUAL expresion_cadena PTCOMA		                                  { $$ = API.astAsignacion($1, $3); } 
+	| if  { $$ = API.astRif($1); }
+	| if else_if {  $$ = API.astElseifC($1 , $2); }
+    | if else {  $$ = API.astElseC($1 , $2); }
+	| if else_if else { $$ = API.astIfCompleto($1, $2 , $3); }                                                        
+	| SWITCH PARIZQ expresion_numerica PARDER LLAVIZQ casos LLAVDER
+		{ $$ = API.astSwitch($3,$6);}
+    | DO LLAVIZQ instrucciones_break LLAVDER WHILE PARIZQ expresion_logica PARDER PTCOMA { $$ = API.astDoWhile( $7, $3); } 
+    | BREAK PTCOMA   { $$ = API.astBreak( $1); }
+    | CONTINUE PTCOMA { $$ = astContinue($1); }
+    | SOUT PARIZQ expresion_cadena PARDER PTCOMA            { $$ = API.astSout($3); }
+    | SOUTLN PARIZQ expresion_cadena PARDER PTCOMA          { $$ = API.astSout($3); }
+    | llamada_metodo   PTCOMA                                 { $$ = $1; }
+
+;
+
+
+instrucciones_int
+	: instrucciones_int instruccionint 	{ $1.push($2); $$ = $1; }
+	| instruccionint					    { $$ = [$1]; }
+;
+
+instruccionint
+    : RINT     identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.ENTERO , [$2]); }
+    | RINT     identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.ENTERO , $2 , $4 ); }
+    | RSTRING  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CADENA , $2); }
+    | RSTRING  identificador IGUAL  expresion_cadena PTCOMA                               { $$ = API.astDeclaracion( TIPO_VALOR.CADENA , $2 , $4 ); }
+    | RBOOLEAN identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.BOOLEANO , $2); }
+    | RBOOLEAN identificador IGUAL  expresion_logica PTCOMA                               { $$ = API.astDeclaracion( TIPO_VALOR.BOOLEANO , $2 , $4 ); }
+    | RDOUBLE  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.DOUBLE , $2); }
+    | RDOUBLE  identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.DOUBLE , $2 , $4 ); }
+    | RCHAR    identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CARACTER , $2); }
+    | RCHAR    identificador IGUAL  CHAR PTCOMA                                           { $$ = API.astDeclaracion( TIPO_VALOR.CARACTER , $2 , $4 ); }
+	| WHILE PARIZQ expresion_logica PARDER LLAVIZQ instrucciones_break LLAVDER { $$ = API.astWhile($3, $6); }	
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astFor($3,$5,$7,$9,$14); }
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astFor($4,$6,$8,$10,$15); }
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astForD($3,$5,$7,$9,$14); }
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astForD($4,$6,$8,$10,$15); }
+	| error { console.error('Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | IDENTIFICADOR IGUAL expresion_cadena PTCOMA		                                  { $$ = API.astAsignacion($1, $3); } 
+	| if  { $$ = API.astRif($1); }
+	| if else_if {  $$ = API.astElseifC($1 , $2); }
+    | if else {  $$ = API.astElseC($1 , $2); }
+	| if else_if else { $$ = API.astIfCompleto($1, $2 , $3); }                                                        
+	| SWITCH PARIZQ expresion_numerica PARDER LLAVIZQ casos LLAVDER
+		{ $$ = API.astSwitch($3,$6);}
+    | DO LLAVIZQ instrucciones_break LLAVDER WHILE PARIZQ expresion_logica PARDER PTCOMA { $$ = API.astDoWhile( $7, $3); } 
+    | RETURN expresion_cadena  { $$ = API.astReturn(TIPO_VALOR.ENTERO , $2); }
+    | SOUT PARIZQ expresion_cadena PARDER PTCOMA            { $$ = API.astSout($3); }
+    | SOUTLN PARIZQ expresion_cadena PARDER PTCOMA          { $$ = API.astSout($3); }    
+    | llamada_metodo   PTCOMA                                 { $$ = $1; }
+
+;
+
+
+
+instrucciones_cadena
+	: instrucciones_cadena instruccioncad 	{ $1.push($2); $$ = $1; }
+	| instruccioncad					    { $$ = [$1]; }
+;
+
+instruccioncad
+    : RINT     identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.ENTERO , [$2]); }
+    | RINT     identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.ENTERO , $2 , $4 ); }
+    | RSTRING  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CADENA , $2); }
+    | RSTRING  identificador IGUAL  expresion_cadena PTCOMA                               { $$ = API.astDeclaracion( TIPO_VALOR.CADENA , $2 , $4 ); }
+    | RBOOLEAN identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.BOOLEANO , $2); }
+    | RBOOLEAN identificador IGUAL  expresion_logica PTCOMA                               { $$ = API.astDeclaracion( TIPO_VALOR.BOOLEANO , $2 , $4 ); }
+    | RDOUBLE  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.DOUBLE , $2); }
+    | RDOUBLE  identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.DOUBLE , $2 , $4 ); }
+    | RCHAR    identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CARACTER , $2); }
+    | RCHAR    identificador IGUAL  CHAR PTCOMA                                           { $$ = API.astDeclaracion( TIPO_VALOR.CARACTER , $2 , $4 ); }
+	| WHILE PARIZQ expresion_logica PARDER LLAVIZQ instrucciones_break LLAVDER { $$ = API.astWhile($3, $6); }	
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astFor($3,$5,$7,$9,$14); }
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astFor($4,$6,$8,$10,$15); }
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astForD($3,$5,$7,$9,$14); }
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astForD($4,$6,$8,$10,$15); }
+	| error { console.error('Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | IDENTIFICADOR IGUAL expresion_cadena PTCOMA		                                  { $$ = API.astAsignacion($1, $3); } 
+	| if  { $$ = API.astRif($1); }
+	| if else_if {  $$ = API.astElseifC($1 , $2); }
+    | if else {  $$ = API.astElseC($1 , $2); }
+	| if else_if else { $$ = API.astIfCompleto($1, $2 , $3); }                                                        
+	| SWITCH PARIZQ expresion_numerica PARDER LLAVIZQ casos LLAVDER
+		{ $$ = API.astSwitch($3,$6);}
+    | DO LLAVIZQ instrucciones_break LLAVDER WHILE PARIZQ expresion_logica PARDER PTCOMA { $$ = API.astDoWhile( $7, $3); } 
+    | RETURN expresion_cadena  { $$ = API.astReturn(TIPO_VALOR.CADENA , $2); }
+    | SOUT PARIZQ expresion_cadena PARDER PTCOMA            { $$ = API.astSout($3); }
+    | SOUTLN PARIZQ expresion_cadena PARDER PTCOMA          { $$ = API.astSout($3); }    
+    | llamada_metodo   PTCOMA                                 { $$ = $1; }
+;
+
+instrucciones_boolean
+	: instrucciones_boolean instruccionboo 	{ $1.push($2); $$ = $1; }
+	| instruccionboo					    { $$ = [$1]; }
+;
+
+instruccionboo
+    : RINT     identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.ENTERO , [$2]); }
+    | RINT     identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.ENTERO , $2 , $4 ); }
+    | RSTRING  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CADENA , $2); }
+    | RSTRING  identificador IGUAL  expresion_cadena PTCOMA                               { $$ = API.astDeclaracion( TIPO_VALOR.CADENA , $2 , $4 ); }
+    | RBOOLEAN identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.BOOLEANO , $2); }
+    | RBOOLEAN identificador IGUAL  expresion_logica PTCOMA                               { $$ = API.astDeclaracion( TIPO_VALOR.BOOLEANO , $2 , $4 ); }
+    | RDOUBLE  identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.DOUBLE , $2); }
+    | RDOUBLE  identificador IGUAL  expresion_numerica PTCOMA                             { $$ = API.astDeclaracion( TIPO_VALOR.DOUBLE , $2 , $4 ); }
+    | RCHAR    identificador PTCOMA                                                       { $$ = API.astDeclaN( TIPO_VALOR.CARACTER , $2); }
+    | RCHAR    identificador IGUAL  CHAR PTCOMA                                           { $$ = API.astDeclaracion( TIPO_VALOR.CARACTER , $2 , $4 ); }
+	| WHILE PARIZQ expresion_logica PARDER LLAVIZQ instrucciones_break LLAVDER { $$ = API.astWhile($3, $6); }	
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astFor($3,$5,$7,$9,$14); }
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MAS MAS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astFor($4,$6,$8,$10,$15); }
+    | FOR PARIZQ IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astForD($3,$5,$7,$9,$14); }
+	| FOR PARIZQ RINT IDENTIFICADOR IGUAL expresion_numerica PTCOMA expresion_logica PTCOMA IDENTIFICADOR MENOS MENOS PARDER LLAVIZQ instrucciones_break LLAVDER
+														{ $$ = API.astForD($4,$6,$8,$10,$15); }
+	| error { console.error('Este es un error sintáctico: ' + yytext + ', en la linea: ' + this._$.first_line + ', en la columna: ' + this._$.first_column); }
+    | IDENTIFICADOR IGUAL expresion_cadena PTCOMA		                                  { $$ = API.astAsignacion($1, $3); } 
+	| if  { $$ = API.astRif($1); }
+	| if else_if {  $$ = API.astElseifC($1 , $2); }
+    | if else {  $$ = API.astElseC($1 , $2); }
+	| if else_if else { $$ = API.astIfCompleto($1, $2 , $3); }                                                        
+	| SWITCH PARIZQ expresion_numerica PARDER LLAVIZQ casos LLAVDER
+		{ $$ = API.astSwitch($3,$6);}
+    | DO LLAVIZQ instrucciones_break LLAVDER WHILE PARIZQ expresion_logica PARDER PTCOMA { $$ = API.astDoWhile( $7, $3); } 
+    | RETURN expresion_cadena  { $$ = API.astReturn(TIPO_VALOR.BOOLEANO , $2); }
+    | SOUT PARIZQ expresion_cadena PARDER PTCOMA            { $$ = API.astSout($3); }
+    | SOUTLN PARIZQ expresion_cadena PARDER PTCOMA          { $$ = API.astSout($3); }
+    | llamada_metodo   PTCOMA                                 { $$ = $1; }
+
+;
+
+
 if 
-    : IF PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER { $$ = API.astIf($3, $6); }
+    : IF PARIZQ expresion_logica PARDER LLAVIZQ instrucciones_break LLAVDER { $$ = API.astIf($3, $6); }
 ;
 
 else    
-    : ELSE LLAVIZQ instrucciones LLAVDER { $$ = API.astElse($3); } 
+    : ELSE LLAVIZQ instrucciones_break LLAVDER { $$ = API.astElse($3); } 
 ;
 
 else_if
     :else_if elif { $1.push($2); $$ = $1; }
-    | elif { $$ = $1; }
+    | elif { $$ = API.astelif($1); }
 ;
 elif
-    : ELSE IF PARIZQ expresion_logica PARDER LLAVIZQ instrucciones LLAVDER { $$ = API.astIf( $4, $7); }
+    : ELSE IF PARIZQ expresion_logica PARDER LLAVIZQ instrucciones_break LLAVDER { $$ = API.astElseif( $4, $7); }
 ;
+
+
 casos : casos caso_evaluar
     {
       $1.push($2);
@@ -241,9 +416,9 @@ casos : casos caso_evaluar
   	{ $$ = API.astCases($1);}
 ;
 
-caso_evaluar : RCASE expresion_numerica DOSPTS instrucciones
+caso_evaluar : CASE expresion_numerica DOSPTS instrucciones_break
     { $$ = API.astCase($2,$4); }
-  | RDEFAULT DOSPTS instrucciones
+  | DEFAULT DOSPTS instrucciones_break
     { $$ = API.astCaseDef($3); }
 ;
 
@@ -262,9 +437,10 @@ expresion_numerica
 	| expresion_numerica POR expresion_numerica			{ $$ = API.nuevoOperacionBinaria($1, $3, TIPO_OPERACION.MULTIPLICACION); }
 	| expresion_numerica DIVIDIDO expresion_numerica	{ $$ = API.nuevoOperacionBinaria($1, $3, TIPO_OPERACION.DIVISION); }
 	| PARIZQ expresion_numerica PARDER					{ $$ = $2; }
-	| ENTERO											{ $$ = API.nuevoValor(Number($1), TIPO_VALOR.NUMERO); }
-	| DECIMAL											{ $$ = API.nuevoValor(Number($1), TIPO_VALOR.NUMERO); }
+	| ENTERO											{ $$ = API.nuevoValor(Number($1), TIPO_VALOR.ENTERO); }
+	| DECIMAL											{ $$ = API.nuevoValor(Number($1), TIPO_VALOR.DOUBLE); }
 	| IDENTIFICADOR										{ $$ = API.nuevoValor($1, TIPO_VALOR.IDENTIFICADOR); }
+    | llamada_metodo                                   { $$ = $1; }
 ;
 
 expresion_cadena
@@ -288,6 +464,22 @@ expresion_logica
 	| expresion_relacional OR expresion_relacional 		{ $$ = API.nuevoOperacionBinaria($1, $3, TIPO_OPERACION.OR); }
 	| NOT expresion_relacional							{ $$ = API.nuevoOperacionUnaria($2, TIPO_OPERACION.NOT); }
 	| expresion_relacional								{ $$ = $1; }
-    | BOOLT										{ $$ = API.nuevoValor($1, TIPO_VALOR.BOOLEANO); }
-    | BOOLF										{ $$ = API.nuevoValor($1, TIPO_VALOR.BOOLEANO); }    
+    | BOOLT									        	{ $$ = API.nuevoValor($1, TIPO_VALOR.BOOLEANO); }
+    | BOOLF									        	{ $$ = API.nuevoValor($1, TIPO_VALOR.BOOLEANO); }    
 ;
+
+
+llamada_metodo
+    : IDENTIFICADOR PARIZQ valores PARDER        { $$ = API.astLlamadaM($1 , $3); }
+;
+
+valores
+    : valores COMA valor { $$ = API.astValores($2); }
+    | valor { $$ = $1; }
+;
+
+valor
+    : expresion_cadena         { $$ = API.astValor($1); }
+    | expresion_logica         { $$ = API.astValor($1); }
+;
+

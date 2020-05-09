@@ -1,13 +1,13 @@
 
 // Constantes para los tipos de 'valores' que reconoce nuestra gramática.
 const TIPO_VALOR = {
-	ENTERO:         'ENTERO',
-	IDENTIFICADOR:  'IDENTIFICADOR',
-	CADENA:         'CADENA',
-	BOOLEANO:		'BOOLEANO',
-	CARACTER:		'CARACTER',
-	DOUBLE:  		'DOUBLE'
-}
+	ENTERO:         'int',
+	IDENTIFICADOR:  'id',
+	CADENA:         'string',
+	BOOLEANO:		'boolean',
+	CARACTER:		'char',
+	DOUBLE:  		'double'
+};
 
 // Constantes para los tipos de 'operaciones' que soporta nuestra gramática.
 const TIPO_OPERACION = {
@@ -46,27 +46,32 @@ const TIPO_INSTRUCCION = {
 	SWITCH_DEF:		'SWITCH_DEF',
 	ASIGNACION_SIMPLIFICADA: 'ASIGNACION_SIMPLIFICADA',
 	IMPORT:         'IMPORT',
-	DCLASE: 		'DECLARACION_CLASE',
+	DCLASE: 		'Declaracion de Clase',
 	METODO:         'METODO',
 	FUNCION: 		'FUNCION',
 	DO_WHILE:		'DO_WHILE'
 
-}
+};
 
 const TIPO_OPCION_SWITCH = { 
 	CASE: 			'CASE',
 	DEFAULT: 		'DEFAULT'
-} 
+};
+
 
 
 const API = {
 
 	astClase: function(identificador, instrucciones){
-		return{
-			tipo: TIPO_INSTRUCCION.DCLASE,
+		var a = {
 			identificador : identificador,
 			instrucciones : instrucciones
-		} 
+		};
+		return{
+			tipo: TIPO_INSTRUCCION.DCLASE,
+			clase: a
+		}
+		
 	},
 
 	astImport: function (identificador){
@@ -77,24 +82,46 @@ const API = {
 	},
 
 	astMetodo: function ( tipo_retorno , identificador, parametros,  instrucciones){
-		return{
-			tipo: TIPO_INSTRUCCION.METODO,
-			identificador = identificador,
+		var a = {
+			iden: identificador,
 			tipo_retorno: tipo_retorno,
 			parametros: parametros,
 			instrucciones: instrucciones
+		};
+		var b = {
+			instruccion: TIPO_INSTRUCCION.METODO,
+			metodo: a
 		}
+		return{
+			instruccion : b
+		}		
 	},
 
 	astFuncion: function ( tipo_retorno , identificador, parametros,  instrucciones){
-		return{
-			tipo: TIPO_INSTRUCCION.FUNCION,
-			identificador = identificador,
-			tipo_retorno: tipo_retorno,
-			parametros: parametros,
-			instrucciones: instrucciones
-		}
+			
+			var b = {
+				identificador : identificador,
+				tipo_retorno: tipo_retorno,
+				parametros: parametros,
+				instrucciones: instrucciones
+			};
+
+			var a = {
+				tipo: TIPO_INSTRUCCION.FUNCION,
+				funcion: b
+			};
+			return{
+				instruccion : a
+			}		
 	},
+
+
+	astListaP: function( identificador){
+		var lista_id = [];
+		lista_id.push(identificador);
+		return lista_id;
+	},
+
 	
 	astParametro: function ( tipo , identificador ){
 		return{
@@ -104,19 +131,35 @@ const API = {
 	},
 	
 	astDeclaracion: function (tipo , identificador , expresion){
-		return{
-			tipo: TIPO_INSTRUCCION.DECLARACION,
+		var a = {
 			tipo_dato: tipo,
-			identificador: identificador,
+			variables: identificador,
 			expresion: expresion
+		};
+		
+		var b = {
+			tipo: TIPO_INSTRUCCION.DECLARACION,
+			declaracion: a
+		}
+
+		return{
+			instruccion : b
 		}
 	},
 
 	astDeclaN: function( tipo , identificadores){
-		return{
-			tipo: TIPO_INSTRUCCION.DECLARACION,
+		var a = {
 			tipo_dato: tipo,
-			identificadores = identificadores
+			variables: identificadores
+		};
+		
+		var b = {
+			tipo: TIPO_INSTRUCCION.DECLARACION,
+			declaracion: a
+		}
+
+		return{
+			instruccion : b
 		}
 	},
 
@@ -124,79 +167,153 @@ const API = {
 	 * Crea un objeto tipo ast para una lista de identificadores.
 	 * @param {*} identificador 
 	 */	
+	astListaI: function( identificador){
+		var lista_id = [];
+		lista_id.push(identificador);
+		return lista_id;
+	},
 
-	 astListaIden: function(identificador){
+	 astIden: function(identificador){
 		 return{
-			identificador = identificador	 
+			identificador : identificador	 
 		}
 	 },
 
 	 astAsignacion: function( identificador , expresion ){
+		var a = {
+			variables : identificador,
+			expresion : expresion
+		};
+
+		var b = {
+			tipo : TIPO_INSTRUCCION.ASIGNACION,
+			asignacion : a
+		};
 		return{
-			identificador = identificador,
-			expresion = expresion
+			instruccion : b
 		}
 
 	 },
 
 	 astWhile: function( condicion , instrucciones){
-		 return{
-			 tipo: TIPO_INSTRUCCION.WHILE,
-			 condicion: condicion,
-			 bloque_sentencias: instrucciones
+		var a = {
+			tipo: TIPO_INSTRUCCION.WHILE,
+			condicion: condicion,
+			bloque_sentencias: instrucciones
+		};
+		return{
+			instruccion : a
 		 }
 	 },
 
 	 astFor: function (variable, valor, condicion, aumento, instrucciones) {
-		return {
+		var a = {
 			tipo: TIPO_INSTRUCCION.FOR,
 			variable: variable,
 			valor_inicial: valor,
 			condicion: condicion,
 			bloque_sentencias: instrucciones,
-			aumento: aumento
-		}
+			aumento: aumento		};
+		return{
+			instruccion : a
+		 }
 	},
 
 	astForD: function (variable, valor, condicion, aumento, instrucciones) {
-		return {
+		var a = {
 			tipo: TIPO_INSTRUCCION.FOR,
 			variable: variable,
 			valor_inicial: valor,
 			condicion: condicion,
 			bloque_sentencias: instrucciones,
-			decremento: aumento
-		}
+			decremento: aumento		};
+		return{
+			instruccion : a
+		 }
 	},
 
 	astIf: function(condicion, instrucciones) {
-		return {
-			tipo: TIPO_INSTRUCCION.IF,
+		return{
 			condicion: condicion,
-			sentencias: instrucciones
+			sentencias: instrucciones		 
 		}
 	},
 
+	astElseifC: function(rif , elseIf){
+		var a = {
+			tipo : TIPO_INSTRUCCION.IF,
+			IF : rif,
+			ELSE_IF: elseIf
+		};
+		return{
+			instruccion : a
+		 }
+	},
+
+	astRif: function( rif){
+		var a = {
+			tipo : TIPO_INSTRUCCION.IF,
+			IF : rif
+		};
+		return{
+			instruccion : a
+		}
+	},
+
+	astElseC: function(rif, relse){
+		var a = {
+			tipo: TIPO_INSTRUCCION.IF,
+			IF: rif,
+			ELSE: relse
+		};
+		return{
+			instruccion : a
+		 }
+	},
+
+	astIfCompleto: function(rif, relif, relse){
+		var a = {
+			tipo: TIPO_INSTRUCCION.IF,
+			IF: rif,
+			ELSE_IF: relif,
+			ELSE: relse
+		};
+		return{
+			instruccion : a
+		 }
+	},
+
+	astelif: function ( elsif ){
+		var elsei = [];
+		elsei.push(elsif);
+		return elsei;
+	},
+
 	astElseif: function( condicion , instrucciones){
-		return {
-			tipo: TIPO_INSTRUCCION.IF_ELSE,
+		var a = {
 			condicion: condicion,
 			sentencias: instrucciones
+		}
+		return {
+			else_if : a
 		}
 	},
 
 	astElse: function ( instrucciones ){
 		return{
-			tipo: TIPO_INSTRUCCION.ELSE,
 			sentencias: instrucciones
 		}
 	},
 
 	astSwitch: function(expresion , casos){
-		return{
+		var a = {
 			tipo: TIPO_INSTRUCCION.SWITCH,
 			expresion: expresion,
 			cases: casos
+
+		}
+		return{
+			instruccion : a
 		}
 	},
 
@@ -223,24 +340,38 @@ const API = {
 	},
 
 	astDoWhile: function ( condicion , instrucciones){
-		return{
+		var a = {
 			tipo: TIPO_INSTRUCCION.DO_WHILE,
 			condicion: condicion,
 			bloque_sentencias: instrucciones
+
+		}
+		return{
+			instruccion : a	
 		}
 	},
+
+	
 
 	nuevoOperador: function(operador){
 		return operador 
 	},
 
 	nuevoOperacionBinaria: function(operandoIzq, operandoDer, tipo) {
-		return nuevaOperacion(operandoIzq, operandoDer, tipo);
+		return {
+			operandoIzq: operandoIzq,
+			operandoDer: operandoDer,
+			tipo: tipo
+		}
 	},
 
 
 	nuevoOperacionUnaria: function(operando, tipo) {
-		return nuevaOperacion(operando, undefined, tipo);
+		return {
+			operandoIzq: operandoIzq,
+			operandoDer: undefined,
+			tipo: tipo
+		}
 	},
 
 	nuevoValor: function(valor, tipo) {
@@ -248,7 +379,75 @@ const API = {
 			tipo: tipo,
 			valor: valor
 		}
+	},
+
+	astBreak: function( brk ){
+		return{
+			instruccion : brk
+		}
+	},
+
+	astContinue: function( cont ){
+		return{
+			instruccion : cont
+		}
+	},
+
+	astReturn: function( tipo,  rtn ){
+		var a = {
+			tipo : tipo,
+			expresion : rtn
+		}
+		var b = {
+			return : a
+		}
+
+		return{
+			instruccion : b
+		}
+	},
+
+	astSout: function ( contenido ){
+		var a = {
+			valor : contenido
+		}
+		var b = {
+			tipo : "SYSTEM OUT",
+			sout : a
+		}
+
+
+		return{
+			instruccion :b
+		}
+	},
+
+	astLlamadaM: function (identificador, variables){
+		var a = {
+			identificador : identificador,
+			parametros : variables
+		};
+		var b = {
+			tipo : "LLAMADA FUNCION",
+			funcion : a
+		};
+		return{
+			instruccion : b
+		}
+	},
+
+	astValores : function ( valor ){
+		var valores = [];
+		valores.push(valor);
+		return valores;
+	},
+
+	astValor : function (exp){
+		return{
+			parametro : exp
+		}
 	}
+
 }
 
 // Exportamos nuestras constantes y nuestra API
@@ -256,5 +455,5 @@ const API = {
 module.exports.TIPO_OPERACION = TIPO_OPERACION;
 module.exports.TIPO_INSTRUCCION = TIPO_INSTRUCCION;
 module.exports.TIPO_VALOR = TIPO_VALOR;
-module.exports.instruccionesAPI = instruccionesAPI;
+module.exports.API = API;
 module.exports.TIPO_OPCION_SWITCH = TIPO_OPCION_SWITCH;
