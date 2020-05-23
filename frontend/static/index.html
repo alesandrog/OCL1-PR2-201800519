@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Anntenae</title>
+
+    <meta name="description" content="Source code generated using layoutit.com">
+    <meta name="author" content="LayoutIt!">
+
+    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="css/stylepr.css" rel="stylesheet">
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.4.9/ace.js"></script>
+
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.18.1/highlight.min.js">
+    </script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.2.1/themes/default/style.min.css" />
+    <script type="text/javascript" src="js/json-viewer.js"></script>
+    <link rel="stylesheet" type="text/css" href="css/json-viewer.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
+    <script src="sweetalert2.all.min.js"></script>
+<!-- Optional: include a polyfill for ES6 Promises for IE11 -->
+<script src="https://cdn.jsdelivr.net/npm/promise-polyfill"></script>
+</head>
+
+<body>
+
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <nav class="navbar navbar-expand-lg navbar-light bg-light navbar-dark bg-dark">
+
+                    <button class="navbar-toggler" type="button" data-toggle="collapse"
+                        data-target="#bs-example-navbar-collapse-1">
+                        <span class="navbar-toggler-icon"></span>
+                    </button> <a class="navbar-brand" href="#">Jison Parser</a>
+                </nav>
+            </div>
+        </div>
+        <div class="row">
+            <br>
+            <br><br><br>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h3>
+                            Entrada Java
+                        </h3>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="btn-group" role="group">
+
+                            <button class="btn btn-secondary" type="button" onclick="generarAST()">
+                                Generar AST
+                            </button>
+                            
+                            <button class="btn btn-secondary" type="button" onclick="reportarCopia()">
+                                Analizar Copia
+                            </button>
+                            <button class="btn btn-secondary" type="button" onclick="reportarErrores()">
+                                Reporte de Errores
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12">
+                        <div id="pestania">
+                            <nav id="tabsxd">
+                                <div class="nav nav-tabs" id="nav-tab" role="tablist">
+                                    <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab"
+                                        href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Tab
+                                        1</a>
+                                    <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab"
+                                        href="#nav-profile" role="tab" aria-controls="nav-profile"
+                                        aria-selected="false">Tab 2</a>
+                                    <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab"
+                                        href="#nav-contact" role="tab" aria-controls="nav-contact"
+                                        aria-selected="false">Tab 3</a>
+                                </div>
+                            </nav>
+                            <div class="tab-content" id="nav-tabContent">
+                                <div class="tab-pane fade show active" id="nav-home" role="tabpanel"
+                                    aria-labelledby="nav-home-tab" data-simplebar>
+                                    <div id="file-content" style="display: none; "></div>
+                                    <div id="editor" data-simplebar>
+                                    </div>
+                                </div>
+                                <div class="tab-pane fade" id="nav-profile" role="tabpanel"
+                                    aria-labelledby="nav-profile-tab">
+
+                                    <p class="pito">COMPILADORES 1</p>
+                                    <button class="btn-active" onclick="">Prueba</button>
+                                </div>
+                                <div class="tab-pane fade" id="nav-contact" role="tabpanel"
+                                    aria-labelledby="nav-contact-tab">
+                                    <p class="pito">Nelson Gonzalez</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <script type="text/javascript">
+            var e = ace.edit("editor");
+            e.getSession().setMode("ace/mode/csharp");
+        </script>
+        <div class="row">
+            <br>
+            <br><br>
+        </div>
+        <div class="row">
+            <div class="col-md-6">
+                <h2>Output:</h2>
+            </div>
+            <div class="col-md-6">
+                <div class="btn-group" role="group">
+
+                    <button class="btn btn-secondary" type="button" onclick="treeview('ast')">
+                        AST Clases
+                    </button>
+                    <button class="btn btn-secondary" type="button" onclick="treeview('copia')">
+                        JSON Copias
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div id="json"></div>
+            </div>
+        </div>
+        <div class="row">
+            <br>
+            <br><br><br><br><br>
+        </div>
+        <div class="row">
+            <div class="col-md-12">
+                <div class="page-header">
+                    <h2>
+                        Reportes <small>Tabla de Errores</small>
+                    </h2>
+                </div>
+            </div>
+            <div class="col-md-12">
+        
+        
+                    <br>
+                    <br>
+
+                    <table class="table table-striped table-dark">
+                        <thead class="thead-dark">
+                            <tr>
+                                <th scope="col">#</th>
+                                <th scope="col">Token</th>
+                                <th scope="col">Tipo de Error</th>
+                                <th scope="col">Fila</th>
+                                <th scope="col">Columna</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tbl_errores">
+
+                        </tbody>
+                    </table>
+
+            
+            </div>
+        <div class="row">
+            <br>
+            <br><br><br><br><br>
+        </div>
+    </div>
+    <script src="js/Graficos.js"></script>
+    <script src="js/client.js"></script>
+    <script src="js/jquery.min.js"></script>
+    <script src="js/scripts.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+    <script type="text/javascript" src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.bundle.min.js">
+    </script>
+</body>
+
+</html>
