@@ -1,0 +1,102 @@
+{
+  "id_clase": "Aritmetica",
+  "funciones": [
+    {
+      "nombre": "suma",
+      "retorno": "int",
+      "parametros": [
+        {
+          "tipo_dato": "double",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "b"
+        }
+      ],
+      "clase": "Aritmetica"
+    },
+    {
+      "nombre": "resta",
+      "retorno": "double",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "boolean",
+          "parametro": "b"
+        }
+      ],
+      "clase": "Aritmetica"
+    },
+    {
+      "nombre": "multi",
+      "retorno": "double",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "b"
+        }
+      ],
+      "clase": "Aritmetica"
+    },
+    {
+      "nombre": "div",
+      "retorno": "double",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "b"
+        }
+      ],
+      "clase": "Aritmetica"
+    },
+    {
+      "nombre": "potencia",
+      "retorno": "int",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "string",
+          "parametro": "b"
+        }
+      ],
+      "clase": "Aritmetica"
+    },
+    {
+      "nombre": "modulo",
+      "retorno": "string",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "b"
+        }
+      ],
+      "clase": "Aritmetica"
+    },
+    {
+      "nombre": "main",
+      "retorno": "no retorna",
+      "parametros": "sin parametros",
+      "clase": "Aritmetica"
+    }
+  ],
+  "declaraciones": []
+}

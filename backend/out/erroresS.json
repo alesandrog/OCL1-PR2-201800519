@@ -1,0 +1,20 @@
+[
+  {
+    "error": ")",
+    "fila": 22,
+    "columna": 16,
+    "tipo": "Sintactico"
+  },
+  {
+    "error": ")",
+    "fila": 25,
+    "columna": 74,
+    "tipo": "Sintactico"
+  },
+  {
+    "error": ")",
+    "fila": 25,
+    "columna": 75,
+    "tipo": "Sintactico"
+  }
+]

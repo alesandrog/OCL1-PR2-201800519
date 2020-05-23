@@ -1,0 +1,33 @@
+
+
+
+
+
+import Sistema;         
+import Node;            
+import JTable;          
+import Bichulga;        
+
+class Principal{
+
+void main(){
+while( true){
+do{
+for(int i=0; i<10; i--){
+if(i == 5){ break; }
+}
+}while(  a < b);
+};
+
+
+}
+}
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,146 @@
+{
+  "imports": [
+    {
+      "tipo": "IMPORT",
+      "identificador": "Sistema"
+    },
+    {
+      "tipo": "IMPORT",
+      "identificador": "Node"
+    },
+    {
+      "tipo": "IMPORT",
+      "identificador": "JTable"
+    },
+    {
+      "tipo": "IMPORT",
+      "identificador": "Bichulga"
+    }
+  ],
+  "clases": [
+    {
+      "tipo": "Declaracion de Clase",
+      "clase": {
+        "identificador": "Principal",
+        "contenido_clase": [
+          {
+            "instruccion": {
+              "tipo": "FUNCION",
+              "funcion": {
+                "identificador": "main",
+                "tipo_retorno": "no retorna",
+                "parametros": "sin parametros",
+                "contenido_metodo": [
+                  {
+                    "instruccion": {
+                      "tipo": "WHILE",
+                      "condicion": {
+                        "tipo": "boolean",
+                        "valor": "true"
+                      },
+                      "bloque_sentencias": [
+                        {
+                          "instruccion": {
+                            "tipo": "DO_WHILE",
+                            "condicion": {
+                              "expresion1": {
+                                "tipo": "id",
+                                "valor": "a"
+                              },
+                              "expresion2": {
+                                "tipo": "id",
+                                "valor": "b"
+                              },
+                              "tipo": "menor que"
+                            },
+                            "bloque_sentencias": [
+                              {
+                                "instruccion": {
+                                  "tipo": "FOR",
+                                  "variable": "i",
+                                  "valor_inicial": {
+                                    "tipo": "double",
+                                    "valor": 0
+                                  },
+                                  "condicion": {
+                                    "expresion1": {
+                                      "tipo": "id",
+                                      "valor": "i"
+                                    },
+                                    "expresion2": {
+                                      "tipo": "double",
+                                      "valor": 10
+                                    },
+                                    "tipo": "menor que"
+                                  },
+                                  "bloque_sentencias": [
+                                    {
+                                      "instruccion": {
+                                        "tipo": "IF",
+                                        "IF": {
+                                          "condicion": {
+                                            "expresion1": {
+                                              "tipo": "id",
+                                              "valor": "i"
+                                            },
+                                            "expresion2": {
+                                              "tipo": "double",
+                                              "valor": 5
+                                            },
+                                            "tipo": "igual igual"
+                                          },
+                                          "sentencias": [
+                                            {
+                                              "instruccion": "break"
+                                            }
+                                          ]
+                                        }
+                                      }
+                                    }
+                                  ],
+                                  "decremento": "i"
+                                }
+                              }
+                            ]
+                          }
+                        }
+                      ]
+                    }
+                  },
+                  [
+                    {
+                      "error": ";",
+                      "fila": 20,
+                      "columna": 1,
+                      "tipo": "Sintactico"
+                    },
+                    {
+                      "error": "}",
+                      "fila": 23,
+                      "columna": 0,
+                      "tipo": "Sintactico"
+                    }
+                  ],
+                  [
+                    {
+                      "error": ";",
+                      "fila": 20,
+                      "columna": 1,
+                      "tipo": "Sintactico"
+                    },
+                    {
+                      "error": "}",
+                      "fila": 23,
+                      "columna": 0,
+                      "tipo": "Sintactico"
+                    }
+                  ]
+                ]
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

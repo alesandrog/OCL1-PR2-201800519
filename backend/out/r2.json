@@ -1,0 +1,115 @@
+{
+  "id_clase": "clasexd",
+  "funciones": [
+    {
+      "nombre": "f1",
+      "retorno": "int",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "h"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "c"
+        }
+      ],
+      "clase": "clasexd"
+    },
+    {
+      "nombre": "f2",
+      "retorno": "char",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "h"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "c"
+        }
+      ],
+      "clase": "clasexd"
+    },
+    {
+      "nombre": "f3",
+      "retorno": "boolean",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "h"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "c"
+        }
+      ],
+      "clase": "clasexd"
+    },
+    {
+      "nombre": "f4",
+      "retorno": "string",
+      "parametros": [
+        {
+          "tipo_dato": "int",
+          "parametro": "a"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "h"
+        },
+        {
+          "tipo_dato": "int",
+          "parametro": "c"
+        }
+      ],
+      "clase": "clasexd"
+    }
+  ],
+  "declaraciones": [
+    {
+      "variable": "a",
+      "caracteristicas": {
+        "clase": "clasexd",
+        "funcion": "f1",
+        "tipo_dato": "string"
+      }
+    },
+    {
+      "variable": "a",
+      "caracteristicas": {
+        "clase": "clasexd",
+        "funcion": "f2",
+        "tipo_dato": "string"
+      }
+    },
+    {
+      "variable": "a",
+      "caracteristicas": {
+        "clase": "clasexd",
+        "funcion": "f3",
+        "tipo_dato": "string"
+      }
+    },
+    {
+      "variable": "a",
+      "caracteristicas": {
+        "clase": "clasexd",
+        "funcion": "f4",
+        "tipo_dato": "string"
+      }
+    }
+  ]
+}
